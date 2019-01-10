@@ -1,0 +1,116 @@
+#!/usr/bin/env groovy
+
+String REGISTRY_URL = 'https://dev-docker-registry.tecnotree.com'
+String REGISTRY_LOGIN = 'dev-docker-registry-login'
+String IMAGE_NAME = 'ngb/postprocessor'
+
+String branchName = ''
+String imageTag = ''
+String commitId = ''
+String imageLabel = ''
+
+//Continous Integration Deployment environment
+String CI_BRANCH = 'develop'
+String CI_HOST = "192.168.202.213"
+
+node('nodejs-8-node'){
+
+  try {
+
+	if (env.BRANCH_NAME != null && env.BRANCH_NAME != '') {
+		branchName = env.BRANCH_NAME
+		// set gitLabConnection to push multibranch pipeline status to gitlab
+	  	properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'gitlab']])
+	  	echo "MultiBranch Pipeline ${env.BRANCH_NAME} : ${branchName}"
+   	}
+
+   	if (env.gitlabSourceBranch != null && env.gitlabSourceBranch != '') {
+		branchName = env.gitlabSourceBranch
+		echo "SingleBranch Pipeline ${env.gitlabSourceBranch} : ${branchName}"
+	}
+
+	// checkout the git commit that triggered the build
+	gitlabCommitStatus('name': "Build"){
+		stage('SCM') {
+			checkout scm
+
+			// branch checked out will be a detached HEAD if Run/triggered from Jenkins UI
+			// NOTE: must set Advanced checkout behaviours -> 'Check out to matching local branch' in Jenkins job for this to work
+			if ("${branchName}" == "") {
+				branchName = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+				echo "Jenkins UI triggered Run of detached HEAD branch : ${branchName}"
+		   	}
+
+		    echo "Building Pipeline Branch : ${branchName}"
+		    assert branchName
+
+
+		    try {
+            	// NOTE: must set Advanced clone behaviours -> 'Fetch tags' activated in Jenkins job
+				imageTag = sh(returnStdout: true, script: 'git describe').trim()
+            }
+            catch (e) {
+                echo "no tags in git repository"
+            }
+
+		    commitId = env.gitlabMergeRequestLastCommit // not available in multibranch pipeline
+            imageLabel = '--label release-version='+imageTag+' --label branch-name='+branchName+' --label commit-hash='+commitId+' .'
+            echo "Image Label : ${imageLabel}"
+            assert imageLabel
+	   	}
+
+     	stage('Build') {
+        	// Install and run tests
+          	echo 'Build Stage'
+          	sh 'cd postprocessor && npm install' //used for installing all the required node modules.
+          	stash name: 'sources', includes: 'Dockerfile, postprocessor/'
+      	}
+      stage('Analyze') {
+    			// Run SonarQube analysis
+    			 def scannerHome = tool 'Sonar-scanner 3.0';
+    			withSonarQubeEnv('sonarqube.tecnotree.com') {
+    				sh "${scannerHome}/bin/sonar-scanner"
+    	   		}
+    		}
+	}
+
+	//docker build and push to development registry
+	gitlabCommitStatus('name': "Package"){
+      	stage('Package'){
+	  			if (imageLabel == null && imageLabel == '') {
+	          		imageLabel = '.'
+	      		}
+	  		echo "docker build, tag and push image ${IMAGE_NAME}:${imageTag}"
+	  		docker.withRegistry(REGISTRY_URL, REGISTRY_LOGIN){
+	  			def image = docker.build("${IMAGE_NAME}", imageLabel)
+	  			if (imageTag != null && imageTag != '') {
+	  	        	image.push imageTag
+	  	       	}
+	  	      	if ("${branchName}" == "${CI_BRANCH}") {
+	  	        	image.push 'latest'
+	  	      	}
+	  	      	else {
+	  	        	image.push "${branchName.replaceAll('/','-')}-latest"
+	  	       	}
+	  		}
+  		}
+	}
+
+  } // close try
+	catch (e) {
+		currentBuild.result = "FAILED"
+		notifyFailed()
+		print e
+		throw e
+ 	}
+
+	// deploy to CI environment
+	gitlabCommitStatus('name': "Deploy & Test"){
+	}
+
+}
+
+
+def notifyFailed() {
+	emailext body: "For more details, refer ${env.BUILD_URL}", subject: "${BUILD_TAG} Build Failed", recipientProviders: [[$class: 'DevelopersRecipientProvider']], replyTo:'DL-CP-DEVOPS@tecnotree.com'
+}

@@ -1,0 +1,8 @@
+billLanguageKey: billingAccountDetails.invoiceLanguage
+translations:
+  - offeringName
+  - multiplayOfferingName
+  - chargeName
+  - eventLabel
+  - taxPlanName
+  - discountName

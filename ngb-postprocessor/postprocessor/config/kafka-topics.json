@@ -1,0 +1,8 @@
+{
+    "kafkaTopics":[
+        "ngb_billing_runs",
+        "ngb_payments_credits_debits",
+        "ngb_invoice_samples_run",
+        "ngb_update_cleared_amount_for_invoice"
+    ]
+}

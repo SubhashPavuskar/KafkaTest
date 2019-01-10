@@ -1,0 +1,28 @@
+{
+  "mysql": {
+    "host"     : "NGB_MYSQL_HOST",
+    "user"     : "NGB_MYSQL_USER",
+    "password" : "NGB_MYSQL_PASS",
+    "database" : "NGB_MYSQL_DB"
+  },
+  "cassandra": {
+    "contactPoints": "NGB_CASSANDRA_HOST"
+  },
+  "kafka": {
+    "host": "NGB_KAFKA_SERVER",
+    "maxKafkaMessageSize" : "MAX_KAFKA_MESSAGE_SIZE"
+  },
+  "application": {
+    "tenant": "NGB_TENANT_ID"
+  },
+  "redis": {
+    "host": "NGB_REDIS_HOST"
+  },
+  "cache": {
+    "stdTTL": "NGB_POSTPROCESSOR_CACHE_TTL",
+    "checkperiod": "NGB_POSTPROCESSOR_CACHE_CHECK_PERIOD"
+  },
+  "log": {
+    "title": "NGB_POSTPROCESSOR_LOGGING_TITLE"
+  }
+}

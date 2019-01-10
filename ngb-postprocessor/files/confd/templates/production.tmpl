@@ -1,0 +1,111 @@
+{
+  "mysql": {
+    "host"     : "{{ getenv "DB_MYSQL_HOST_IP" }}",
+    "user"     : "{{ getenv "DB_MYSQL_USER_NAME" }}",
+    "password" : "{{ getenv "DB_MYSQL_PASSWORD" }}",
+    "database" : "{{ getenv "DB_MYSQL_DATABASE" }}",
+    "connectionLimit": {{ getenv "DB_MYSQL_CONNECTION_LIMIT" }},
+    "acquireTimeout": {{ getenv "DB_MYSQL_ACQUIRE_TIMEOUT" }}
+  },
+  "cassandra": {
+    "contactPoints": ["{{ getenv "DB_CASSANDRA_HOST_IP" }}"],
+    "keyspace": "{{ getenv "DB_CASSANDRA_KEY_SPACE" }}"
+  },
+  "kafka": {
+    "host": "{{ getenv "KAFKA_HOST_IP" }}",
+    "port": "{{ getenv "KAFKA_HOST_PORT" }}",
+    "maxKafkaMessageSize" : null,
+    "billRunIdsTopic": "ngb_billing_runs",
+    "paymentsCreditsDebitsTopic" : "ngb_payments_credits_debits",
+    "rejectionNotification": "ngb_rejection_notification",
+    "sampleBillRunIdTopic" : "ngb_invoice_samples_run",
+    "ngbInvoiceStatusNotifTopic" : "ngb_invoice_status_notification",
+    "notifyBillRunIdsTopic": "ngb_billing_run_notifications",
+    "notifyValidationBillRunIdsTopic": "ngb_validation_billing_run_notifications",
+    "notifySampleBillRunIdsTopic": "ngb_sample_billing_run_notifications",
+    "prefixForBillRunInvoicesTopics": "ngb_invoices_for_billing_run_",
+    "prefixForSampleBillRunInvoicesTopics": "ngb_invoices_for_sample_billing_run_",
+    "deleteTopicCommand": "/usr/lib/kafka/bin/kafka-topics.sh --delete --zookeeper $NGB_KAFKA_SERVER:2181 --topic ",
+    "createTopicCommand": "/usr/lib/kafka/bin/kafka-topics.sh --create --zookeeper $NGB_KAFKA_SERVER:2181 --replication-factor 1 --partitions 1 --topic",
+    "billRunIdsConsumerConfig1": {
+      "groupId": "ngb-postprocessor-billing-run-consumers",
+      "sessionTimeout": {{ getenv "KAFKA_SESSION_TIMEOUT" }},
+      "fetchMaxWaitMs": {{ getenv "KAFKA_MAX_WAITMS" }},
+      "fetchMinBytes": {{ getenv "KAFKA_MIN_BYTES" }},
+      "fetchMaxBytes": {{ getenv "KAFKA_MAX_BYTES" }},
+      "protocol": ["roundrobin"],
+      "fromOffset": "latest",
+      "outOfRangeOffset": "latest",
+      "autoCommit": false,
+      "migrateHLC": false,
+      "migrateRolling": false
+    },
+     "billRunIdsConsumerConfig": {
+          "group.id": "ngb-postprocessor-billing-run-consumers",
+          "enable.auto.commit": false,
+          "socket.keepalive.enable": true
+        },
+        "sampleBillConsumerConfig": {
+          "group.id": "ngb-postprocessor-billing-run-consumers",
+          "enable.auto.commit": false,
+          "socket.keepalive.enable": true
+        },
+        "statusNotificationConfig": {
+          "group.id": "ngb-postprocessor-billing-run-consumers",
+          "enable.auto.commit": false,
+          "socket.keepalive.enable": true
+        },
+        "paymentDebitCreditConfig": {
+          "group.id": "ngb-postprocessor-billing-run-consumers",
+          "enable.auto.commit": false,
+          "socket.keepalive.enable": true
+        },
+        "updateClearedAmountConfig": {
+          "group.id": "ngb-postprocessor-billing-run-consumers",
+          "enable.auto.commit": false,
+          "socket.keepalive.enable": true
+        },
+        "kafkaProducerConfig": {
+          "group.id": "ngb-postprocessor-billing-run-consumers",
+          "enable.auto.commit": false,
+          "socket.keepalive.enable": true
+        },
+    "updateClearedAmountForInvoice" : "ngb_update_cleared_amount_for_invoice"
+  },
+  "log": {
+    "title": "postprocessor",
+    "highestLevel": "debug",
+    "stderr": true,
+    "stdout": true,
+    "syslogHashTags": true
+  },
+  "cache": {
+    "stdTTL": 3600,
+    "checkperiod": 300
+  },
+  "application": {
+    "tenant": "TT",
+    "log": {
+      "translationWarnings": true
+    }
+  },
+  "redis" : {
+    "pkg":       "ioredis",
+    "host":      "{{ getenv "DB_REDIS_HOST_IP" }}",
+    "password":  "{{ getenv "DB_REDIS_PASSWORD" }}",
+    "port":      {{ getenv "DB_REDIS_PORT" }},
+    "database":  {{ getenv "REDIS_DATABASE" }}
+  },
+ "billingRunTypes" : {
+    "ValidationBillingRun" : "Mock",
+    "SampleBillingRun" : "Sample",
+    "StandardBillingRun" : "Standard",
+    "HotBillingRun" : "Hot",
+	"Sample" : "Sample"
+  },
+  "invoiceStatus":{
+    "S":"Completed",
+    "F":"Failed"
+  },
+  "updateDueAmtForBillType" : ["Standard", "Hot"]
+}

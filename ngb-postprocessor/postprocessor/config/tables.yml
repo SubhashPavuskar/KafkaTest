@@ -1,0 +1,61 @@
+primaryTables:
+  - name: BILLING_ACCOUNTS
+    rawInvoiceKey: metadata.billingAccountId
+    primaryKeyColumnName: id
+    binaryPrimaryKey: true
+    columns:
+      IDENTITY_CODE: customerDetails.identityCode
+      NAME: billingAccountDetails.accountName
+      NAME2: billingAccountDetails.accountNameLine2
+      BILL_FORMAT_TYPE: billingAccountDetails.invoiceDeliveryMedia
+      EINVOICE_ADDRESS: billingAccountDetails.eInvoiceAddress
+      EINVOICE_OPERATOR_CODE: billingAccountDetails.eInvoiceOperatorCode
+      ACCOUNT_NUMBER: billingAccountDetails.accountNumber
+      LANGUAGE: billingAccountDetails.invoiceLanguage
+      BILLABLE: billingAccountDetails.billableAccount
+      CURRENCY: billingAccountDetails.invoiceCurrency.code
+      REFERENCE_INFO: invoiceSummary.referenceInfo
+      FLAT_NUMBER: billingAccountDetails.address.flatNumber
+      HOUSE_NUMBER: billingAccountDetails.address.houseNumber
+      CITY: billingAccountDetails.address.city
+      POST_CODE: billingAccountDetails.address.postCode
+      COUNTRY: billingAccountDetails.address.country
+      STREET: billingAccountDetails.address.street
+      EMAIL: billingAccountDetails.address.email
+      CATEGORY: billingAccountDetails.category
+      SUB_CATEGORY: billingAccountDetails.subCategory
+      CONTACT_NUMBER: billingAccountDetails.accountContactNumber
+  - name: PROFILES
+    rawInvoiceKey: metadata.profileId
+    primaryKeyColumnName: id
+    binaryPrimaryKey: true
+    columns:
+      NAME_1: customerDetails.name1
+      NAME_2: customerDetails.name2
+  - name: SERVICE_ACCOUNTS
+    rawInvoiceKey: metadata.billingAccountId
+    primaryKeyColumnName: billing_account_id
+    binaryPrimaryKey: true
+    columns:
+      SERVICE_ACCOUNT_NO: serviceAccounts[0].metadata.serviceAccountNumber
+      EMAIL_ID: serviceAccounts[0].metadata.serviceEmailId
+      NAME: serviceAccounts[0].metadata.serviceName
+      ITEMIZED_FLAG: serviceAccounts[0].metadata.itemizedFlag
+      
+additionalTables:
+  - name: BILLING_RUNS
+    rawInvoiceKey: metadata.billingRunId
+    primaryKeyColumnName: id
+    binaryPrimaryKey: true
+    columns:
+      BILLING_RUN_TYPE: metadata.billingRunType
+statics:
+    transactions:
+      balanceBroughtForward: 0.00
+updateBillingRunStatus:
+  name: BILLING_RUNS
+  rawInvoiceKey: metadata.billingRunId
+  primaryKeyColumnName: id
+  binaryPrimaryKey: true
+  columns:
+    BILLING_RUN_STATUS : 'PostingToKafka'

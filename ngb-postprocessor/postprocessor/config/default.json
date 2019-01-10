@@ -1,0 +1,100 @@
+{
+  "mysql": {
+    "host"     : "172.20.44.66",
+    "user"     : "ngb",
+    "password" : "P@ssword123",
+    "database" : "ngb_test",
+    "connectionLimit": 50
+  },
+  "cassandra": {
+    "contactPoints": ["172.20.44.66"],
+    "keyspace": "ngb_test"
+  },
+  "kafka": {
+    "host": "localhost",
+    "port": "9092",
+    "maxKafkaMessageSize" : null,
+    "billRunIdsTopic": "ngBillingRuns",
+    "paymentsCreditsDebitsTopic" : "ngb_payments_credits_debits",
+    "rejectionNotification": "ngb_rejection_notification",
+    "sampleBillRunIdTopic" : "ngb_invoice_samples_run",
+    "ngbInvoiceStatusNotifTopic" : "ngb_invoice_status_notification",
+    "notifyBillRunIdsTopic": "ngb_billing_run_notifications",
+    "notifySampleBillRunIdsTopic": "ngb_sample_billing_run_notifications",
+    "prefixForBillRunInvoicesTopics": "ngb_invoices_for_billing_run_",
+    "prefixForSampleBillRunInvoicesTopics": "ngb_invoices_for_sample_billing_run_",
+    "deleteTopicCommand": "../tools/kafka/bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic ",
+    "createTopicCommand": "../tools/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic ",
+    "billRunIdsConsumerConfig": {
+      "group.id": "bill-enricher",
+      "enable.auto.commit": false,
+      "socket.keepalive.enable": true
+    },
+    "sampleBillConsumerConfig": {
+      "group.id": "bill-enricher",
+      "enable.auto.commit": false,
+      "socket.keepalive.enable": true
+    },
+    "statusNotificationConfig": {
+      "group.id": "bill-enricher",
+      "enable.auto.commit": false,
+      "socket.keepalive.enable": true
+    },
+    "paymentDebitCreditConfig": {
+      "group.id": "bill-enricher",
+      "enable.auto.commit": false,
+      "socket.keepalive.enable": true
+    },
+    "updateClearedAmountConfig": {
+      "group.id": "bill-enricher",
+      "enable.auto.commit": false,
+      "socket.keepalive.enable": true
+    },
+    "kafkaProducerConfig": {
+      "group.id": "bill-enricher",//"ngb-postprocessor-billing-run-consumers",
+      "enable.auto.commit": false,
+      "socket.keepalive.enable": true,
+      "queue.buffering.max.messages": 10000000,
+      "message.max.bytes" : 1000000000,
+      "queue.buffering.max.ms": 1000,
+      "batch.num.messages": 1000000
+    },
+    "updateClearedAmountForInvoice" : "ngb_update_cleared_amount_for_invoice"
+  },
+  "log": {
+    "title": "postprocessor",
+    "highestLevel": "debug",
+    "stderr": true,
+    "stdout": true,
+    "syslogHashTags": true
+  },
+  "cache": {
+    "stdTTL": 600,
+    "checkperiod": 60
+  },
+  "application": {
+    "tenant": "TT",
+    "log": {
+      "translationWarnings": false
+    }
+  },
+  "redis" : {
+    "pkg":       "ioredis",
+    "host":      "localhost",
+    "password":  "",
+    "port":      6379,
+    "database":  0
+  },
+  "billingRunTypes" : {
+    "ValidationBillingRun" : "Mock",
+    "SampleBillingRun" : "Sample",
+    "StandardBillingRun" : "Standard",
+    "HotBillingRun" : "Hot",
+    "Sample" : "Sample"
+  },
+  "invoiceStatus":{
+    "S":"Completed",
+    "F":"Failed"
+  },
+  "updateDueAmtForBillType" : ["Standard", "Hot"]
+}

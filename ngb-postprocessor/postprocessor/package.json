@@ -1,0 +1,38 @@
+{
+  "name": "postprocessor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "lint": "jshint *.js helpers/*.js",
+    "prestart": "npm run lint"
+  },
+  "author": "Yuri Barseghyan",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.0.1",
+    "bluebird": "^3.4.6",
+    "boom": "^4.0.0",
+    "cassandra-driver": "~3.1.3",
+    "config": "^1.21.0",
+    "hapi": "^15.0.3",
+    "hex-to-uuid": "^1.0.1",
+    "is-valid-json": "^1.0.2",
+    "joi": "^9.0.4",
+    "kafka-node": "^1.3.0",
+    "lodash": "^4.15.0",
+    "mysql": "^2.11.1",
+    "node-cache": "^3.2.1",
+    "node-rdkafka": "^2.5.1",
+    "node-resque": "^4.0.7",
+    "rconsole": "^0.3.0",
+    "shelljs": "^0.7.4",
+    "yamljs": "^0.2.8"
+  },
+  "devDependencies": {
+    "jshint": "latest",
+    "nodemon": "^1.10.2"
+  }
+}
